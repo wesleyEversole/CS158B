@@ -31,6 +31,8 @@ typedef struct IP {
 	int o4;
 } IP;
 
+#define IPOCTET(i) ((i)>=0 && (i)<=255)
+#define IPSANITY(ip) (IPOCTET((ip).o1) && IPOCTET((ip).o2) && IPOCTET((ip).o3) && IPOCTET((ip).o4))
 
 void rateChart(int interfaceID, int numSteps,int sizeOfSteps, float * rate) {
 	/*
@@ -119,6 +121,42 @@ void interfaceChart(int * IFA,int numInterfaces,IP * neighborIP){
 
 }
 
+void test0() {
+	//simple print test for neighborChar
+	IP IPTest;
+	IP IParray [MAX_OCTET];
+	IP *IPA=&IParray[0];
+	int i=0;
+	for(i=0;i<MAX_OCTET;i++){
+		IPTest.o1=i;
+		IPTest.o2=i;
+		IPTest.o3=i;
+		IPTest.o4=i;
+		IParray[i]=IPTest;
+	}
+	neighborChart(1,MAX_OCTET,IPA);
+	//end of neighborChar test
+	//Simple Mbps range test
+	srand(time(NULL));
+
+	int numSteps=10;
+	int stepSize = numSteps/5;
+	float listMbps[numSteps];
+	float *lM=&listMbps[0];
+	lM[0]=0.0;
+	lM[1]=5.2312;
+	lM[2]=13;
+	lM[3]=-1.1;
+	lM[4]=43.2;
+	lM[5]=12.2;
+	lM[6]=100.2;
+	lM[7]=0;
+	lM[8]=8.6;
+	lM[9]=9.2;
+	rateChart(1,numSteps,stepSize,lM);
+	//end of Mbps range test
+}
+
 int main(int argc, char *argv[]){
 
 	int interval;
@@ -156,39 +194,11 @@ int main(int argc, char *argv[]){
 		exit(-1);
 	}
 	// ... check o1,o2,o3,o4 for 0-255
-
-	//simple print test for neighborChar
-	IP IPTest;
-	IP IParray [MAX_OCTET];
-	IP *IPA=&IParray[0];
-	int i=0;
-	for(i=0;i<MAX_OCTET;i++){
-		IPTest.o1=i;
-		IPTest.o2=i;
-		IPTest.o3=i;
-		IPTest.o4=i;
-		IParray[i]=IPTest;
+	if (!IPSANITY(agent)) {
+		fprintf(stderr, "agent IP not value must be xxx.xxx.xxx.xxx  where xxx is 0 to 255\n");
+		exit(-1);
 	}
-	neighborChart(1,MAX_OCTET,IPA);
-	//end of neighborChar test
-	//Simple Mbps range test
-	srand(time(NULL));
 
-	int numSteps=10;
-	int stepSize = numSteps/5;
-	float listMbps[numSteps];
-	float *lM=&listMbps[0];
-	lM[0]=0.0;
-	lM[1]=5.2312;
-	lM[2]=13;
-	lM[3]=-1.1;
-	lM[4]=43.2;
-	lM[5]=12.2;
-	lM[6]=100.2;
-	lM[7]=0;
-	lM[8]=8.6;
-	lM[9]=9.2;
-	rateChart(1,numSteps,stepSize,lM);
-	//end of Mbps range test
+    test0();
 return 1;
 }
