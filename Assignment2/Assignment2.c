@@ -1,8 +1,8 @@
 //may need flags for gcc to work
-/*
+
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
-*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -199,6 +199,71 @@ int main(int argc, char *argv[]){
 		exit(-1);
 	}
 
-    test0();
+	char ipStr[16];
+
+	// octets must be 0-255 (checked above)
+	sprintf(ipStr,"%d.%d.%d.%d",agent.o1,agent.o2,agent.o3,agent.o4);
+
+    netsnmp_session session, *ss;
+    netsnmp_pdu *pdu;
+    netsnmp_pdu *response;
+
+
+    // OIDs and variables for SNMP
+    oid anOID[MAX_OID_LEN];
+    oid newOID[MAX_OID_LEN];
+    size_t anOID_len;
+    size_t newOID_len;
+
+    netsnmp_variable_list *vars;
+
+
+    /*
+     * Initialize the SNMP library
+     */
+    init_snmp("Assignment2");
+
+    /*
+     * Initialize a "session" that defines who we're going to talk to
+     */
+    snmp_sess_init( &session );                   /* set up defaults */
+    session.peername = &ipStr;
+
+
+    /* set the SNMP version number */
+    session.version = SNMP_VERSION_1;
+
+    /* set the SNMPv1 community name used for authentication */
+    // default is public
+    //   our private on loopback is RW
+    session.community = "private";
+    session.community_len = strlen(session.community);
+
+    /*
+     * Open the session
+     */
+    SOCK_STARTUP;
+    ss = snmp_open(&session);                     /* establish the session */
+
+    if (!ss) {
+      snmp_sess_perror("ack", &session);
+      SOCK_CLEANUP;
+      exit(1);
+    }
+
+    test0(); // simple test code for print routine
+
+    // do the real work here
+
+    // get all the device interfaces
+
+    // get device IP neighbors
+
+    // get traffic from all the interfaces
+
+    // close out the session
+    snmp_close(ss);
+    SOCK_CLEANUP;
+    exit(0);
 return 1;
 }
